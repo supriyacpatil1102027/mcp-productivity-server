@@ -1,0 +1,10 @@
+graph LR
+  A[Claude Desktop] -- stdio --> B[MCP Server: productivity-server]
+  B --> C[add_task tool]
+  B --> D[list_tasks tool]
+  B --> E[send_task_reminder_email tool]
+  B --> F[daily_planning_prompt]
+  C --> G[(tasks.db SQLite)]
+  D --> G
+  F --> G
+  E --> H[Gmail SMTP]
