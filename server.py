@@ -14,9 +14,9 @@ import smtplib
 import time
 from email.mime.text import MIMEText
 from pathlib import Path
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-mcp = FastMCP("productivity-server")
+mcp = MCPServer("productivity-server")
 DB_PATH = Path(__file__).parent / "tasks.db"
 
 
