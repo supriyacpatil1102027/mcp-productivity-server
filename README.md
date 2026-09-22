@@ -76,3 +76,8 @@ Claude Desktop <--stdio--> productivity-server
 ## Credits
 Server structure adapted from the official MCP Python SDK quickstart:
 https://github.com/modelcontextprotocol/python-sdk
+
+## AI Declaration
+I used Claude (AI assistant) to help with this assignment, including writing and debugging code,
+implementing best practices, and preparing documentation. I reviewed and understand all the code
+and content submitted.
