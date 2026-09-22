@@ -2,11 +2,7 @@
   "mcpServers": {
     "productivity-server": {
       "command": "uv",
-      "args": ["--directory", "C:\\Users\\supri\\Documents\\mcp-productivity-server", "run", "server.py"],
-      "env": {
-        "GMAIL_USER": "youraddress@gmail.com",
-        "GMAIL_APP_PASSWORD": "your-16-char-app-password"
-      }
+      "args": ["--directory", "C:\\Users\\supri\\Documents\\mcp-productivity-server", "run", "server.py"]
     }
   }
 }

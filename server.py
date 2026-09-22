@@ -14,7 +14,13 @@ import smtplib
 import time
 from email.mime.text import MIMEText
 from pathlib import Path
+from dotenv import load_dotenv
 from mcp.server.mcpserver import MCPServer
+
+# Secret management: credentials live in a local .env file (never committed --
+# see .gitignore), loaded via pathlib relative to this file so it works
+# regardless of the process's working directory.
+load_dotenv(Path(__file__).parent / ".env")
 
 mcp = MCPServer("productivity-server")
 DB_PATH = Path(__file__).parent / "tasks.db"
@@ -61,6 +67,24 @@ def sanitize_priority(priority: str) -> str:
     if priority not in ALLOWED_PRIORITIES:
         raise ValueError("priority must be one of: low, medium, high.")
     return priority
+
+
+EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+
+
+def sanitize_email_address(email: str) -> str:
+    email = email.strip()
+    # Reject embedded CR/LF up front -- email.message headers do not strip
+    # them, so an unsanitized value could inject extra headers (e.g. Bcc:).
+    if "\r" in email or "\n" in email or not EMAIL_RE.match(email):
+        raise ValueError("recipient_email is not a valid email address.")
+    return email
+
+
+def sanitize_header_value(value: str, field_name: str) -> str:
+    if "\r" in value or "\n" in value:
+        raise ValueError(f"{field_name} must not contain newline characters.")
+    return value
 
 
 @mcp.tool()
@@ -112,7 +136,11 @@ def check_rate_limit():
 def send_task_reminder_email(recipient_email: str, subject: str, body: str) -> dict:
     """Send a task reminder email. Requires GMAIL_USER / GMAIL_APP_PASSWORD env vars."""
     try:
+        recipient_email = sanitize_email_address(recipient_email)
+        subject = sanitize_header_value(subject, "subject")
         check_rate_limit()
+    except ValueError as e:
+        return {"success": False, "error": str(e)}
     except RuntimeError as e:
         return {"success": False, "error": str(e)}
 

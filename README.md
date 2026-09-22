@@ -14,24 +14,37 @@ tracking with SQLite storage and email reminders via Gmail SMTP.
 ## Best Practices Implemented
 1. **Input Sanitization** — `add_task` validates title length/characters, date format (YYYY-MM-DD),
    and priority against an allow-list, and always writes to SQLite via parameterized queries
-   (never string-concatenated SQL). See `exploit_tests.py` Exploit 1 for a blocked SQL-injection attempt.
+   (never string-concatenated SQL). `send_task_reminder_email` validates the recipient address
+   against an email-format check and rejects embedded CR/LF characters in the address/subject to
+   prevent email header injection (e.g. a forged `Bcc:` header). See `exploit_tests.py` Exploit 1
+   (SQL injection) and Exploit 3 (header injection) for blocked attempts.
 2. **Rate Limiting** — `send_task_reminder_email` allows at most 3 calls per 60-second window
    (in-memory sliding window). See `exploit_tests.py` Exploit 2 for a blocked rapid-fire attempt.
 
 Bonus: errors returned to the client are always generic/validation-level messages — raw
 exceptions (e.g. SMTP stack traces) are never disclosed (Error Disclosure best practice).
 
-## Authentication
+## Authentication & Secret Management
 Email sending requires a **Gmail App Password** (not your real Gmail password):
 Google Account -> Security -> 2-Step Verification -> App passwords -> generate one for "Mail".
-Credentials are passed as environment variables (`GMAIL_USER`, `GMAIL_APP_PASSWORD`) via the
-Claude Desktop MCP config — never hardcoded in source.
+
+Credentials are loaded from a local **`.env`** file (never committed — see `.gitignore`) via
+`python-dotenv`, resolved with `pathlib.Path(__file__).parent / ".env"` so it loads correctly
+regardless of the process's working directory:
+
+```bash
+cp .env.example .env
+# then edit .env with your real GMAIL_USER / GMAIL_APP_PASSWORD
+```
+
+Credentials are never hardcoded in source and never passed through the Claude Desktop config file.
 
 ## Setup
 
 ```bash
 # from this project folder
 uv sync
+cp .env.example .env   # then fill in your Gmail credentials
 ```
 
 Test the tools directly:

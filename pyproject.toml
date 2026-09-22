@@ -5,6 +5,7 @@ description = "MCP server for personal productivity: task tracking + email remin
 requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]>=1.2.0",
+    "python-dotenv>=1.2.3",
 ]
 
 [tool.uv]
